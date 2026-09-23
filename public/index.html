@@ -80,13 +80,19 @@ img{display:block;max-width:100%}
 .searchicon:after{content:"";position:absolute;width:6px;height:1.7px;background:var(--ink);right:-5px;bottom:-2px;transform:rotate(45deg)}
 .smallcta{border:1px solid var(--plum);background:var(--plum);color:white;border-radius:999px;padding:10px 15px;font-size:12px;font-weight:700}
 .menubtn{display:none;position:relative}
-.menubtn span,.menubtn:before,.menubtn:after{content:"";position:absolute;left:12px;width:15px;height:1.5px;background:var(--ink)}
+.menubtn span,.menubtn:before,.menubtn:after{content:"";position:absolute;left:12px;width:15px;height:1.5px;background:var(--ink);transition:transform .22s ease,opacity .18s ease,top .22s ease}
 .menubtn:before{top:13px}.menubtn span{top:19px}.menubtn:after{top:25px}
+.menubtn.open:before{top:19px;transform:rotate(45deg)}
+.menubtn.open span{opacity:0}
+.menubtn.open:after{top:19px;transform:rotate(-45deg)}
 
-.mobilemenu{display:none;padding:14px 18px 20px;background:var(--paper);border-top:1px solid var(--line)}
+.mobilemenu{display:none;padding:14px 18px 24px;background:var(--paper);border-top:1px solid var(--line)}
 .mobilemenu.open{display:block}
+body.mobile-menu-open{overflow:hidden}
 .mobilemenu a,.mobilemenu button{width:100%;display:flex;align-items:center;justify-content:space-between;border:0;border-bottom:1px solid var(--line);background:none;padding:14px 0;font-weight:600;text-align:left}
 .mobilesub{display:none;padding-left:12px;border-left:1px solid var(--line)} .mobilesub.open{display:block}
+.mobilemenu #mobileArticleToggle span{font-size:20px;font-weight:400;line-height:1;color:var(--plum);transition:transform .2s ease}
+
 
 .page{display:none;animation:pageIn .42s ease both}
 .page.active{display:block}
@@ -132,7 +138,7 @@ img{display:block;max-width:100%}
 .feature-image img{width:100%;height:100%;object-fit:cover}
 .feature-image:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(45,25,52,.14),transparent 52%)}
 .feature-copy{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:34px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
-.feature-copy:after{content:"✝";position:absolute;right:-18px;bottom:-38px;font-size:170px;color:rgba(74,40,85,.026)}
+.feature-copy:after{content:none;display:none}
 .feature-copy h2{font-family:var(--display);font-size:clamp(36px,4vw,52px);line-height:1.07;color:var(--plum);margin:11px 0 15px}
 .feature-copy .highlight{font-family:var(--serif);font-size:15px;line-height:1.75;color:#5e5262;margin:0 0 14px}
 .feature-copy .excerpt{font-size:12.5px;line-height:1.7;color:var(--muted);margin:0 0 22px}
@@ -143,7 +149,7 @@ img{display:block;max-width:100%}
 .arrowline:after{content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
 
 .scripture{padding:54px 0;text-align:center;background:linear-gradient(135deg,#eee5f2,#faf5fb);border-top:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;overflow:hidden}
-.scripture:before{content:"✝";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:190px;color:rgba(74,40,85,.035)}
+.scripture:before{content:none;display:none}
 .scripture blockquote{position:relative;z-index:2;max-width:880px;margin:auto;font-family:var(--display);font-size:clamp(34px,4.6vw,54px);line-height:1.12;color:var(--plum)}
 .scripture cite{display:block;position:relative;z-index:2;margin-top:16px;font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 
@@ -295,6 +301,19 @@ footer{border-top:1px solid var(--line);background:var(--paper);padding:42px 0 2
 }
 
 @media(max-width:680px){
+  .mobilemenu{
+    position:fixed;
+    top:66px;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:99;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    background:rgba(255,253,253,.995);
+    box-shadow:0 18px 40px rgba(58,38,64,.08);
+  }
+  .mobilemenu.open{display:block;animation:mobileMenuIn .22s ease both}
   .nav,.container,.hero,.article-cover,.article-layout,.back-row{width:min(100% - 28px,1220px)}
   .nav{min-height:66px}
   .brand{font-size:19px}
@@ -353,6 +372,11 @@ footer{border-top:1px solid var(--line);background:var(--paper);padding:42px 0 2
   .to-top{right:14px;bottom:14px}
 }
 
+@keyframes mobileMenuIn{
+  from{opacity:0;transform:translateY(-6px)}
+  to{opacity:1;transform:none}
+}
+
 @media(prefers-reduced-motion:reduce){
   *,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
@@ -381,9 +405,10 @@ footer{border-top:1px solid var(--line);background:var(--paper);padding:42px 0 2
   <div class="nav-actions">
     <button class="iconbtn" id="openSearch" aria-label="Search"><span class="searchicon"></span></button>
     <button class="smallcta" onclick="goPage('about')">About the Author</button>
-    <button class="iconbtn menubtn" id="menuBtn" aria-label="Menu"><span></span></button>
+    <button class="iconbtn menubtn" id="menuBtn" aria-label="Open menu" aria-expanded="false"><span></span></button>
   </div>
 </nav>
+</header>
 
 <div class="mobilemenu" id="mobileMenu">
   <a href="#home" data-page-link="home">Home</a>
@@ -394,7 +419,6 @@ footer{border-top:1px solid var(--line);background:var(--paper);padding:42px 0 2
   <a href="#resources" data-page-link="resources">Resources</a>
   <a href="#contact" data-page-link="contact">Contact</a>
 </div>
-</header>
 
 <main>
 
@@ -1097,6 +1121,15 @@ function goPage(name){
   });
 
   document.getElementById("mobileMenu").classList.remove("open");
+  document.body.classList.remove("mobile-menu-open");
+  const menuBtn=document.getElementById("menuBtn");
+  menuBtn.classList.remove("open");
+  menuBtn.setAttribute("aria-expanded","false");
+  menuBtn.setAttribute("aria-label","Open menu");
+  const mobileSub=document.getElementById("mobileArticleSub");
+  if(mobileSub) mobileSub.classList.remove("open");
+  const mobileToggleSymbol=document.querySelector("#mobileArticleToggle span");
+  if(mobileToggleSymbol) mobileToggleSymbol.textContent="+";
   window.scrollTo({top:0,behavior:"smooth"});
   history.replaceState(null,"","#"+name);
 }
@@ -1231,8 +1264,29 @@ document.getElementById("articleCategorySelect").addEventListener("change",e=>{
 
 document.getElementById("articleSearch").addEventListener("input",renderLibrary);
 
-document.getElementById("menuBtn").addEventListener("click",()=>document.getElementById("mobileMenu").classList.toggle("open"));
-document.getElementById("mobileArticleToggle").addEventListener("click",()=>document.getElementById("mobileArticleSub").classList.toggle("open"));
+document.getElementById("menuBtn").addEventListener("click",()=>{
+  const menu=document.getElementById("mobileMenu");
+  const btn=document.getElementById("menuBtn");
+  const isOpen=menu.classList.toggle("open");
+  document.body.classList.toggle("mobile-menu-open",isOpen);
+  btn.classList.toggle("open",isOpen);
+  btn.setAttribute("aria-expanded",String(isOpen));
+  btn.setAttribute("aria-label",isOpen?"Close menu":"Open menu");
+
+  if(!isOpen){
+    const sub=document.getElementById("mobileArticleSub");
+    if(sub) sub.classList.remove("open");
+    const symbol=document.querySelector("#mobileArticleToggle span");
+    if(symbol) symbol.textContent="+";
+  }
+});
+document.getElementById("mobileArticleToggle").addEventListener("click",()=>{
+  const sub=document.getElementById("mobileArticleSub");
+  const toggle=document.getElementById("mobileArticleToggle");
+  const open=sub.classList.toggle("open");
+  const symbol=toggle.querySelector("span");
+  if(symbol) symbol.textContent=open?"×":"+";
+});
 
 const overlay=document.getElementById("searchOverlay");
 document.getElementById("openSearch").addEventListener("click",()=>overlay.classList.add("open"));
