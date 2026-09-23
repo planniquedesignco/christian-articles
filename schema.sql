@@ -1,5 +1,5 @@
 PRAGMA foreign_keys = ON;
-
+ 
 CREATE TABLE IF NOT EXISTS site_settings (
   id INTEGER PRIMARY KEY CHECK (id = 1),
   site_name TEXT NOT NULL DEFAULT 'Grace in Every Season',
