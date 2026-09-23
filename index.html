@@ -679,7 +679,7 @@ Editable fields:
 - closing
 */
 
-const themes = [
+let themes = [
   {id:1,name:"Faith & Life",slug:"faith-life",desc:"Finding God in ordinary life, waiting, change and spiritual growth."},
   {id:2,name:"Prayer",slug:"prayer",desc:"Reflections on prayer, silence, trust and drawing nearer to God."},
   {id:3,name:"Bible Study",slug:"bible-study",desc:"Reading Scripture carefully and applying biblical truth to everyday life."},
@@ -688,7 +688,7 @@ const themes = [
   {id:6,name:"Testimony",slug:"testimony",desc:"Stories of grace, lessons, questions and God's faithfulness."}
 ];
 
-const articles = [
+let articles = [
   {
     id:1,
     slug:"faith-quieter",
@@ -983,6 +983,107 @@ const articles = [
   }
 ];
 
+
+const FALLBACK_THEMES = themes.map(x=>({...x}));
+const FALLBACK_ARTICLES = articles.map(x=>({...x}));
+
+async function loadCMSContent(){
+  try{
+    const res=await fetch("/api/public/content",{cache:"no-store"});
+    if(!res.ok)throw new Error("CMS unavailable");
+    const data=await res.json();
+
+    if(Array.isArray(data.categories) && data.categories.length){
+      themes=data.categories.map(c=>({
+        id:c.id,
+        name:c.name,
+        slug:c.slug,
+        desc:c.description||""
+      }));
+    }
+
+    if(Array.isArray(data.articles) && data.articles.length){
+      articles=data.articles.map(a=>({
+        id:a.id,
+        slug:a.slug,
+        title:a.title,
+        category:a.category_name||"Uncategorised",
+        date:formatPublicDate(a.published_at),
+        image:a.cover_image||FALLBACK_ARTICLES[0]?.image||"",
+        featured:!!a.is_featured,
+        highlight:a.highlight||"",
+        excerpt:a.excerpt||"",
+        body:parseCMSBody(a.body||""),
+        closing:a.closing||""
+      }));
+    }
+
+    applySiteSettings(data.site||{});
+  }catch(err){
+    themes=FALLBACK_THEMES;
+    articles=FALLBACK_ARTICLES;
+  }
+}
+
+function parseCMSBody(text){
+  if(!text)return[];
+  return String(text)
+    .split(/\n\s*\n/)
+    .map(block=>block.trim())
+    .filter(Boolean);
+}
+
+function formatPublicDate(value){
+  if(!value)return"";
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime()))return value;
+  return d.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+}
+
+function applySiteSettings(s){
+  if(!s)return;
+  const siteName=s.site_name||"";
+  if(siteName){
+    document.querySelectorAll(".brand span:last-child").forEach(el=>el.textContent=siteName);
+    const footer=document.querySelector(".footer-brand h3");
+    if(footer)footer.textContent=siteName;
+    document.title=siteName;
+  }
+
+  const heroTitle=document.querySelector("#page-home .hero h1");
+  if(heroTitle && s.hero_title) heroTitle.textContent=s.hero_title;
+
+  const heroIntro=document.querySelector("#page-home .hero p");
+  if(heroIntro && s.hero_intro) heroIntro.textContent=s.hero_intro;
+
+  const heroImg=document.querySelector("#page-home .hero-art img");
+  if(heroImg && s.hero_image) heroImg.src=s.hero_image;
+
+  const authorName=s.author_name||"";
+  document.querySelectorAll(".signature").forEach(el=>{if(authorName)el.textContent=authorName});
+  document.querySelectorAll(".article-byline").forEach(el=>{if(authorName)el.textContent="By "+authorName});
+
+  const authorImgs=document.querySelectorAll(".author-photo img");
+  if(s.author_image) authorImgs.forEach(img=>img.src=s.author_image);
+
+  const homeAuthor=document.querySelector("#page-home .author-copy");
+  if(homeAuthor && s.author_short_bio){
+    const ps=homeAuthor.querySelectorAll("p");
+    if(ps[0])ps[0].textContent=s.author_short_bio;
+  }
+
+  const aboutAuthor=document.querySelector("#page-about .author-copy");
+  if(aboutAuthor && s.author_full_bio){
+    const ps=aboutAuthor.querySelectorAll("p");
+    if(ps[0])ps[0].textContent=s.author_full_bio;
+  }
+
+  const social=document.querySelectorAll(".social-icons a");
+  if(social[0] && s.instagram_url) social[0].href=s.instagram_url;
+  if(social[1] && s.facebook_url) social[1].href=s.facebook_url;
+  if(social[2] && s.youtube_url) social[2].href=s.youtube_url;
+}
+
 let filter = "All";
 
 function goPage(name){
@@ -1167,14 +1268,18 @@ window.addEventListener("scroll",()=>{
 });
 document.getElementById("toTop").addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
 
-renderCategoryMenus();
-renderRecent();
-renderFilters();
-renderLibrary();
-renderExplore();
+async function initSite(){
+  await loadCMSContent();
+  renderCategoryMenus();
+  renderRecent();
+  renderFilters();
+  renderLibrary();
+  renderExplore();
 
-const start=location.hash.replace("#","");
-if(["home","articles","explore","about","resources","contact"].includes(start))goPage(start);
+  const start=location.hash.replace("#","");
+  if(["home","articles","explore","about","resources","contact"].includes(start))goPage(start);
+}
+initSite();
 </script>
 </body>
 </html>
