@@ -1,0 +1,24 @@
+{
+  "name": "grace-cms",
+  "main": "worker.js",
+  "compatibility_date": "2026-09-23",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "grace-cms-db",
+      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+    }
+  ]
+
+  // Optional later for direct image uploads:
+  // ,"r2_buckets": [
+  //   {
+  //     "binding": "IMAGES",
+  //     "bucket_name": "grace-cms-images"
+  //   }
+  // ]
+}
