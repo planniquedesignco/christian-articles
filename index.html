@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Premium Christian editorial publication demo." />
+  <title>Grace & Truth — Editorial Demo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --ink:#1f2522;
+      --muted:#6f756f;
+      --paper:#f7f3ec;
+      --paper-2:#efe9df;
+      --white:#fffdf9;
+      --line:#d8d0c4;
+      --accent:#6f2c3e;
+      --accent-2:#314f45;
+      --soft:#e8dfd4;
+      --shadow:0 18px 45px rgba(37,34,29,.08);
+      --radius:18px;
+      --serif:"Libre Caslon Text", Georgia, serif;
+      --display:"Libre Caslon Display", Georgia, serif;
+      --sans:"DM Sans", Arial, sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:var(--paper);
+      font-family:var(--sans);
+      overflow-x:hidden;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    img{display:block;max-width:100%}
+
+    .reading-progress{
+      position:fixed;left:0;top:0;height:3px;width:0;
+      background:var(--accent);z-index:1000;
+      transition:width .08s linear;
+    }
+
+    .topline{
+      border-bottom:1px solid var(--line);
+      background:rgba(247,243,236,.92);
+      backdrop-filter:blur(14px);
+      position:sticky;top:0;z-index:100;
+    }
+
+    .nav{
+      width:min(1180px,calc(100% - 40px));
+      margin:auto;
+      min-height:76px;
+      display:grid;
+      grid-template-columns:220px 1fr 220px;
+      align-items:center;
+      gap:20px;
+    }
+
+    .brand{
+      display:flex;align-items:center;gap:12px;
+      font-family:var(--display);
+      font-size:27px;
+      letter-spacing:-.02em;
+    }
+
+    .brand-mark{
+      width:34px;height:34px;border:1px solid var(--ink);
+      border-radius:50%;display:grid;place-items:center;
+      font-family:var(--serif);font-size:15px;
+    }
+
+    .navlinks{
+      display:flex;justify-content:center;align-items:center;gap:30px;
+      font-size:14px;font-weight:600;
+    }
+
+    .navlink,.dropdown-trigger{
+      position:relative;
+      border:0;background:transparent;color:var(--ink);
+      padding:28px 0 25px;
+    }
+
+    .navlink::after,.dropdown-trigger::after{
+      content:"";
+      position:absolute;left:0;right:100%;bottom:18px;height:1px;background:var(--ink);
+      transition:.25s ease;
+    }
+    .navlink:hover::after,.dropdown-trigger:hover::after,.navlink.active::after{
+      right:0;
+    }
+
+    .dropdown{position:relative}
+    .dropdown-trigger{display:flex;align-items:center;gap:7px}
+    .chev{
+      width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+      transform:rotate(45deg) translateY(-2px);transition:.25s;
+    }
+    .dropdown:hover .chev{transform:rotate(225deg) translate(-1px,-1px)}
+
+    .dropdown-menu{
+      position:absolute;top:66px;left:50%;transform:translateX(-50%) translateY(8px);
+      width:210px;background:var(--white);border:1px solid var(--line);
+      box-shadow:var(--shadow);border-radius:14px;padding:8px;
+      opacity:0;visibility:hidden;transition:.2s ease;
+    }
+    .dropdown:hover .dropdown-menu{
+      opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);
+    }
+    .dropdown-menu a{
+      display:block;padding:11px 12px;border-radius:9px;font-size:13px;font-weight:600;
+    }
+    .dropdown-menu a:hover{background:var(--paper-2)}
+
+    .nav-actions{display:flex;justify-content:flex-end;align-items:center;gap:12px}
+    .search-btn,.menu-btn{
+      width:40px;height:40px;border:1px solid var(--line);border-radius:50%;
+      background:transparent;display:grid;place-items:center;
+    }
+    .search-icon{width:15px;height:15px;border:1.7px solid var(--ink);border-radius:50%;position:relative}
+    .search-icon:after{content:"";position:absolute;width:6px;height:1.7px;background:var(--ink);right:-5px;bottom:-2px;transform:rotate(45deg)}
+
+    .subscribe-btn{
+      border:1px solid var(--ink);background:var(--ink);color:white;
+      padding:11px 16px;border-radius:999px;font-size:12px;font-weight:700;
+      letter-spacing:.03em;
+    }
+    .menu-btn{display:none;position:relative}
+    .menu-btn span,.menu-btn:before,.menu-btn:after{
+      content:"";width:15px;height:1.5px;background:var(--ink);position:absolute;left:12px;
+    }
+    .menu-btn:before{top:13px}.menu-btn span{top:19px}.menu-btn:after{top:25px}
+
+    .mobile-panel{
+      display:none;border-top:1px solid var(--line);background:var(--white);padding:18px 20px 24px;
+    }
+    .mobile-panel.open{display:block}
+    .mobile-panel a,.mobile-panel button{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:14px 0;border:0;border-bottom:1px solid var(--line);background:none;
+      font-weight:600;text-align:left;color:var(--ink);
+    }
+    .mobile-sub{
+      display:none;padding-left:14px;border-left:1px solid var(--line);
+    }
+    .mobile-sub.open{display:block}
+
+    main{min-height:70vh}
+    .page{display:none;animation:pageIn .45s ease both}
+    .page.active{display:block}
+    @keyframes pageIn{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:none}
+    }
+
+    .container{width:min(1180px,calc(100% - 40px));margin:auto}
+    .narrow{width:min(800px,calc(100% - 40px));margin:auto}
+
+    .eyebrow{
+      font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+      color:var(--accent);
+    }
+
+    .hero{
+      min-height:690px;display:grid;grid-template-columns:1.08fr .92fr;
+      width:min(1180px,calc(100% - 40px));margin:auto;
+      border-bottom:1px solid var(--line);
+    }
+
+    .hero-copy{
+      padding:92px 72px 72px 0;display:flex;flex-direction:column;justify-content:center;
+    }
+
+    .hero h1{
+      margin:18px 0 22px;font-family:var(--display);font-size:clamp(52px,6.3vw,94px);
+      font-weight:400;line-height:.98;letter-spacing:-.045em;
+    }
+    .hero h1 em{font-family:var(--serif);font-weight:400;color:var(--accent)}
+    .hero p{
+      max-width:620px;color:var(--muted);line-height:1.8;font-size:16px;margin:0 0 30px;
+    }
+    .hero-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .primary,.secondary{
+      border-radius:999px;padding:13px 18px;font-size:13px;font-weight:700;transition:.25s;
+    }
+    .primary{background:var(--accent);border:1px solid var(--accent);color:white}
+    .primary:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(111,44,62,.16)}
+    .secondary{background:transparent;border:1px solid var(--line)}
+    .secondary:hover{background:var(--white)}
+
+    .hero-visual{
+      min-height:610px;margin:42px 0;background:
+      radial-gradient(circle at 70% 25%,rgba(255,255,255,.42),transparent 28%),
+      linear-gradient(145deg,#9c8b7e 0%,#6f5f54 48%,#2f3935 100%);
+      border-radius:220px 220px 26px 26px;
+      position:relative;overflow:hidden;box-shadow:var(--shadow);
+    }
+    .portrait-placeholder{
+      position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding:46px;
+      background:
+        linear-gradient(to top,rgba(20,24,22,.62),rgba(20,24,22,.02) 58%),
+        radial-gradient(circle at 48% 24%,rgba(255,255,255,.18),transparent 16%);
+    }
+    .portrait-placeholder:before{
+      content:"";
+      width:190px;height:250px;border-radius:48% 48% 38% 38%;
+      background:linear-gradient(#c6b5a7,#8c796b);
+      position:absolute;top:120px;left:50%;transform:translateX(-50%);
+      box-shadow:0 120px 0 32px rgba(62,54,49,.92);
+      opacity:.92;
+    }
+    .portrait-label{
+      position:relative;z-index:2;color:white;text-align:center;
+    }
+    .portrait-label strong{display:block;font-family:var(--serif);font-size:20px;margin-bottom:4px}
+    .portrait-label span{font-size:12px;opacity:.82}
+
+    .marquee{
+      overflow:hidden;border-bottom:1px solid var(--line);background:var(--white);
+    }
+    .marquee-track{
+      min-width:max-content;display:flex;gap:52px;padding:14px 0;
+      animation:marquee 30s linear infinite;
+      text-transform:uppercase;font-size:10px;font-weight:700;letter-spacing:.16em;color:var(--muted);
+    }
+    .marquee-track span:before{content:"✦";margin-right:52px;color:var(--accent)}
+    @keyframes marquee{to{transform:translateX(-50%)}}
+
+    .section{padding:88px 0}
+    .section-head{
+      display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-bottom:34px;
+    }
+    .section-title{
+      font-family:var(--display);font-size:clamp(38px,5vw,66px);font-weight:400;letter-spacing:-.035em;line-height:1.02;margin:0;
+    }
+    .section-note{max-width:430px;color:var(--muted);font-size:14px;line-height:1.7}
+
+    .feature-grid{
+      display:grid;grid-template-columns:1.22fr .78fr;gap:22px;
+    }
+    .feature-card{
+      background:var(--accent-2);color:white;min-height:510px;border-radius:var(--radius);
+      position:relative;overflow:hidden;padding:38px;display:flex;flex-direction:column;justify-content:flex-end;
+    }
+    .feature-card:before{
+      content:"";position:absolute;inset:0;
+      background:
+        radial-gradient(circle at 78% 20%,rgba(255,255,255,.10),transparent 18%),
+        linear-gradient(145deg,transparent 30%,rgba(255,255,255,.05));
+    }
+    .feature-card > *{position:relative}
+    .feature-card .eyebrow{color:#f0d7de}
+    .feature-card h3{
+      font-family:var(--display);font-size:clamp(36px,4vw,58px);font-weight:400;
+      max-width:720px;line-height:1.02;letter-spacing:-.03em;margin:12px 0 18px;
+    }
+    .feature-card p{max-width:660px;color:rgba(255,255,255,.76);line-height:1.7;font-size:14px}
+
+    .side-stack{display:grid;gap:22px}
+    .mini-feature{
+      background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+      min-height:244px;padding:28px;display:flex;flex-direction:column;justify-content:space-between;
+      transition:.25s ease;
+    }
+    .mini-feature:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+    .mini-feature h4{
+      font-family:var(--serif);font-size:26px;line-height:1.15;margin:10px 0 0;
+    }
+    .arrow-link{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700}
+    .arrow-line{width:28px;height:1px;background:currentColor;position:relative}
+    .arrow-line:after{
+      content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg);
+    }
+
+    .topic-strip{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+    }
+    .topic-card{
+      background:var(--white);border:1px solid var(--line);border-radius:16px;
+      min-height:180px;padding:24px;position:relative;overflow:hidden;transition:.25s;
+    }
+    .topic-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+    .topic-no{font-family:var(--serif);font-size:12px;color:var(--muted)}
+    .topic-card h3{font-family:var(--serif);font-size:24px;margin:44px 0 8px}
+    .topic-card p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}
+    .topic-card:after{
+      content:"";position:absolute;width:74px;height:74px;border:1px solid var(--line);border-radius:50%;
+      right:-18px;top:-18px;transition:.3s;
+    }
+    .topic-card:hover:after{transform:scale(1.18);border-color:var(--accent)}
+
+    .article-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+    }
+    .article-card{
+      border-top:1px solid var(--ink);padding-top:18px;transition:.25s;
+    }
+    .article-card:hover{transform:translateY(-3px)}
+    .article-card .thumb{
+      height:210px;border-radius:14px;margin-bottom:18px;position:relative;overflow:hidden;
+      background:linear-gradient(135deg,#b8a895,#6c756d);
+    }
+    .article-card:nth-child(2n) .thumb{background:linear-gradient(135deg,#8b6b72,#c4b39f)}
+    .article-card:nth-child(3n) .thumb{background:linear-gradient(135deg,#4b5c54,#a79482)}
+    .article-card .thumb:after{
+      content:"";position:absolute;inset:12px;border:1px solid rgba(255,255,255,.35);border-radius:9px;
+    }
+    .article-meta{display:flex;gap:9px;align-items:center;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}
+    .dot{width:3px;height:3px;background:var(--muted);border-radius:50%}
+    .article-card h3{
+      font-family:var(--serif);font-size:24px;line-height:1.22;margin:12px 0 10px;
+    }
+    .article-card p{font-size:13px;line-height:1.7;color:var(--muted);margin:0}
+
+    .quote-band{
+      background:var(--ink);color:white;padding:86px 0;margin-top:20px;
+    }
+    .quote-band blockquote{
+      margin:0 auto;max-width:980px;text-align:center;font-family:var(--display);
+      font-size:clamp(36px,5vw,68px);line-height:1.08;letter-spacing:-.03em;
+    }
+    .quote-band cite{display:block;margin-top:20px;text-align:center;font-style:normal;font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:#c6c7c5}
+
+    .page-hero{padding:84px 0 44px;border-bottom:1px solid var(--line)}
+    .page-hero-grid{display:grid;grid-template-columns:1fr .55fr;gap:50px;align-items:end}
+    .page-hero h1{font-family:var(--display);font-size:clamp(52px,7vw,88px);font-weight:400;line-height:.95;letter-spacing:-.045em;margin:12px 0 0}
+    .page-hero p{color:var(--muted);line-height:1.8;margin:0 0 8px;font-size:14px}
+
+    .article-toolbar{
+      display:flex;gap:12px;justify-content:space-between;align-items:center;padding:26px 0 32px;
+    }
+    .searchbox{
+      flex:1;max-width:460px;display:flex;align-items:center;gap:10px;
+      background:var(--white);border:1px solid var(--line);border-radius:999px;padding:0 16px;
+    }
+    .searchbox input{width:100%;border:0;background:transparent;outline:none;padding:13px 0;font-size:13px}
+    .filter-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .chip{
+      border:1px solid var(--line);background:transparent;border-radius:999px;padding:9px 13px;
+      font-size:11px;font-weight:700;color:var(--muted);
+    }
+    .chip.active,.chip:hover{background:var(--ink);border-color:var(--ink);color:white}
+
+    .editorial-list{border-top:1px solid var(--ink)}
+    .editorial-row{
+      display:grid;grid-template-columns:130px 1fr 280px;gap:30px;
+      padding:28px 0;border-bottom:1px solid var(--line);align-items:start;transition:.2s;
+    }
+    .editorial-row:hover{padding-left:8px}
+    .editorial-row .category{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+    .editorial-row h3{font-family:var(--serif);font-size:28px;line-height:1.18;margin:0 0 10px}
+    .editorial-row p{font-size:13px;color:var(--muted);line-height:1.65;margin:0}
+    .editorial-row .date{text-align:right;font-size:11px;color:var(--muted)}
+
+    .topic-directory{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+    .topic-large{
+      min-height:280px;padding:30px;border:1px solid var(--line);background:var(--white);
+      border-radius:18px;display:flex;flex-direction:column;justify-content:space-between;transition:.25s;
+    }
+    .topic-large:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+    .topic-large h3{font-family:var(--display);font-size:42px;font-weight:400;line-height:1;margin:0}
+    .topic-large p{max-width:430px;color:var(--muted);font-size:13px;line-height:1.65}
+
+    .about-grid{
+      display:grid;grid-template-columns:.72fr 1.1fr;gap:76px;align-items:center;
+    }
+    .about-portrait{
+      min-height:620px;border-radius:220px 220px 24px 24px;
+      background:linear-gradient(145deg,#9f8d7e,#3c4943);position:relative;overflow:hidden;
+    }
+    .about-portrait:after{
+      content:"Client portrait";position:absolute;bottom:24px;left:24px;color:white;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    }
+    .about-copy h2{font-family:var(--display);font-weight:400;font-size:clamp(46px,5vw,72px);line-height:1;letter-spacing:-.04em;margin:12px 0 24px}
+    .about-copy p{font-family:var(--serif);font-size:17px;line-height:1.9;color:#4f554f}
+    .signature{font-family:var(--display);font-size:32px;color:var(--accent);margin-top:20px}
+
+    .resource-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .resource-card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:26px;min-height:260px;display:flex;flex-direction:column;justify-content:space-between}
+    .resource-icon{width:46px;height:46px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-family:var(--serif)}
+    .resource-card h3{font-family:var(--serif);font-size:25px;margin:20px 0 8px}
+    .resource-card p{font-size:13px;color:var(--muted);line-height:1.65}
+
+    .contact-wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:70px}
+    .contact-copy h2{font-family:var(--display);font-size:56px;font-weight:400;line-height:1;margin:10px 0 20px}
+    .contact-copy p{color:var(--muted);line-height:1.8;font-size:14px}
+    .contact-form{display:grid;gap:14px}
+    .field{display:grid;gap:7px}
+    .field label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+    .field input,.field textarea{
+      border:1px solid var(--line);background:var(--white);border-radius:12px;padding:14px 15px;outline:none;
+    }
+    .field textarea{min-height:150px;resize:vertical}
+
+    .article-detail{padding:66px 0 90px}
+    .article-kicker{display:flex;justify-content:center;gap:10px;align-items:center;font-size:10px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;color:var(--accent)}
+    .article-title{
+      max-width:930px;margin:18px auto 24px;text-align:center;font-family:var(--display);
+      font-size:clamp(50px,7vw,88px);font-weight:400;line-height:.98;letter-spacing:-.045em;
+    }
+    .article-deck{max-width:740px;margin:0 auto 24px;text-align:center;color:var(--muted);font-family:var(--serif);font-size:18px;line-height:1.65}
+    .article-byline{text-align:center;font-size:12px;color:var(--muted)}
+    .article-cover{
+      width:min(1180px,calc(100% - 40px));height:520px;margin:54px auto;
+      border-radius:18px;background:linear-gradient(135deg,#7b685e,#33453f);
+      position:relative;overflow:hidden;
+    }
+    .article-cover:after{content:"Editorial image";position:absolute;bottom:20px;right:22px;color:white;font-size:11px;text-transform:uppercase;letter-spacing:.12em}
+    .article-layout{
+      width:min(1030px,calc(100% - 40px));margin:auto;
+      display:grid;grid-template-columns:180px 1fr;gap:54px;
+    }
+    .article-aside{position:sticky;top:110px;align-self:start}
+    .article-aside .share{font-size:10px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;color:var(--muted);margin-bottom:14px}
+    .share-buttons{display:flex;gap:7px;flex-wrap:wrap}
+    .share-buttons button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;font-size:11px}
+    .article-body{font-family:var(--serif);font-size:18px;line-height:1.9;color:#3c413d}
+    .article-body p{margin:0 0 1.5em}
+    .article-body h2{font-family:var(--display);font-size:42px;font-weight:400;line-height:1.05;color:var(--ink);margin:1.55em 0 .55em}
+    .article-body blockquote{
+      margin:2.2em 0;padding:26px 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);
+      font-family:var(--display);font-size:34px;line-height:1.2;color:var(--ink);
+    }
+
+    footer{border-top:1px solid var(--line);background:var(--white);padding:54px 0 30px}
+    .footer-top{display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:start}
+    .footer-brand h3{font-family:var(--display);font-size:42px;font-weight:400;margin:0 0 12px}
+    .footer-brand p{max-width:440px;color:var(--muted);font-size:13px;line-height:1.7}
+    .footer-links{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+    .footer-col strong{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.13em;margin-bottom:14px}
+    .footer-col a{display:block;font-size:13px;color:var(--muted);margin:9px 0}
+    .footer-bottom{display:flex;justify-content:space-between;gap:20px;border-top:1px solid var(--line);margin-top:42px;padding-top:20px;font-size:11px;color:var(--muted)}
+
+    .search-overlay{
+      position:fixed;inset:0;background:rgba(31,37,34,.68);backdrop-filter:blur(7px);z-index:300;
+      display:none;align-items:flex-start;justify-content:center;padding-top:110px;
+    }
+    .search-overlay.open{display:flex}
+    .search-panel{
+      width:min(760px,calc(100% - 30px));background:var(--white);border-radius:20px;padding:24px;box-shadow:var(--shadow);
+    }
+    .search-top{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:14px}
+    .search-top input{flex:1;border:0;background:transparent;outline:none;font-family:var(--serif);font-size:24px}
+    .close-search{border:0;background:transparent;font-size:24px}
+    .search-hint{padding-top:18px;color:var(--muted);font-size:12px}
+
+    @media(max-width:980px){
+      .nav{grid-template-columns:1fr auto}
+      .navlinks{display:none}
+      .nav-actions .subscribe-btn{display:none}
+      .menu-btn{display:grid}
+      .hero{grid-template-columns:1fr;min-height:auto}
+      .hero-copy{padding:72px 0 26px}
+      .hero-visual{margin:10px 0 50px;min-height:560px}
+      .feature-grid,.about-grid,.contact-wrap,.footer-top{grid-template-columns:1fr}
+      .topic-strip{grid-template-columns:repeat(2,1fr)}
+      .article-grid,.resource-grid{grid-template-columns:repeat(2,1fr)}
+      .page-hero-grid{grid-template-columns:1fr}
+      .editorial-row{grid-template-columns:110px 1fr}
+      .editorial-row .date{display:none}
+      .article-layout{grid-template-columns:1fr}
+      .article-aside{position:static}
+      .footer-top{gap:40px}
+    }
+
+    @media(max-width:680px){
+      .nav{width:min(100% - 28px,1180px);min-height:66px}
+      .brand{font-size:23px}
+      .brand-mark{width:30px;height:30px}
+      .search-btn{width:38px;height:38px}
+      .container,.narrow,.hero,.article-cover,.article-layout{width:min(100% - 28px,1180px)}
+      .hero-copy{padding-top:50px}
+      .hero h1{font-size:52px}
+      .hero p{font-size:14px;line-height:1.72}
+      .hero-visual{min-height:430px;border-radius:170px 170px 20px 20px}
+      .portrait-placeholder:before{width:150px;height:190px;top:90px}
+      .section{padding:64px 0}
+      .section-head{display:block}
+      .section-note{margin-top:14px}
+      .feature-card{min-height:430px;padding:26px}
+      .topic-strip,.article-grid,.topic-directory,.resource-grid{grid-template-columns:1fr}
+      .page-hero{padding:58px 0 34px}
+      .page-hero h1{font-size:54px}
+      .article-toolbar{align-items:stretch;flex-direction:column}
+      .searchbox{max-width:none}
+      .filter-chips{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}
+      .chip{white-space:nowrap}
+      .editorial-row{grid-template-columns:1fr;gap:8px}
+      .editorial-row h3{font-size:24px}
+      .about-grid{gap:34px}
+      .about-portrait{min-height:450px}
+      .contact-wrap{gap:38px}
+      .footer-links{grid-template-columns:1fr 1fr}
+      .footer-bottom{flex-direction:column}
+      .article-title{font-size:50px}
+      .article-deck{font-size:16px}
+      .article-cover{height:310px;margin:36px auto}
+      .article-body{font-size:17px;line-height:1.82}
+      .article-body h2{font-size:34px}
+      .article-body blockquote{font-size:28px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="reading-progress" id="progress"></div>
+
+  <header class="topline">
+    <nav class="nav">
+      <a href="#home" class="brand" data-page-link="home">
+        <span class="brand-mark">G</span>
+        <span>Grace & Truth</span>
+      </a>
+
+      <div class="navlinks">
+        <a class="navlink active" href="#home" data-page-link="home">Home</a>
+
+        <div class="dropdown">
+          <button class="dropdown-trigger">
+            Articles <span class="chev"></span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="#articles" data-page-link="articles">All Articles</a>
+            <a href="#articles" data-filter-jump="featured">Featured</a>
+            <a href="#articles" data-filter-jump="latest">Latest</a>
+          </div>
+        </div>
+
+        <a class="navlink" href="#explore" data-page-link="explore">Explore</a>
+        <a class="navlink" href="#about" data-page-link="about">About</a>
+        <a class="navlink" href="#resources" data-page-link="resources">Resources</a>
+        <a class="navlink" href="#contact" data-page-link="contact">Contact</a>
+      </div>
+
+      <div class="nav-actions">
+        <button class="search-btn" id="openSearch" aria-label="Open search">
+          <span class="search-icon"></span>
+        </button>
+        <button class="subscribe-btn" onclick="goPage('contact')">Stay Connected</button>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu"><span></span></button>
+      </div>
+    </nav>
+
+    <div class="mobile-panel" id="mobilePanel">
+      <a href="#home" data-page-link="home">Home</a>
+      <button id="mobileArticleToggle">Articles <span>+</span></button>
+      <div class="mobile-sub" id="mobileArticleSub">
+        <a href="#articles" data-page-link="articles">All Articles</a>
+        <a href="#articles" data-filter-jump="featured">Featured</a>
+        <a href="#articles" data-filter-jump="latest">Latest</a>
+      </div>
+      <a href="#explore" data-page-link="explore">Explore</a>
+      <a href="#about" data-page-link="about">About</a>
+      <a href="#resources" data-page-link="resources">Resources</a>
+      <a href="#contact" data-page-link="contact">Contact</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="page-home" class="page active">
+      <div class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow">Christian Thought • Faith • Everyday Life</span>
+          <h1>Words for a life of <em>faith</em>, thoughtfully lived.</h1>
+          <p>
+            A personal space for Scripture-rooted reflections, Christian living, prayer, theology,
+            and the questions that shape a faithful everyday life.
+          </p>
+          <div class="hero-actions">
+            <button class="primary" onclick="goPage('articles')">Read the Journal</button>
+            <button class="secondary" onclick="goPage('about')">Meet the Author</button>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="portrait-placeholder">
+            <div class="portrait-label">
+              <strong>Your Client's Portrait</strong>
+              <span>Replace this with her actual photo later</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="marquee">
+        <div class="marquee-track">
+          <span>Faith & Life</span><span>Prayer</span><span>Scripture</span><span>Christian Living</span><span>Theology</span><span>Church & Community</span>
+          <span>Faith & Life</span><span>Prayer</span><span>Scripture</span><span>Christian Living</span><span>Theology</span><span>Church & Community</span>
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">Editor's Selection</span>
+              <h2 class="section-title">Featured reflections</h2>
+            </div>
+            <p class="section-note">
+              Longer-form essays and reflections selected for thoughtful reading,
+              quiet consideration, and meaningful conversation.
+            </p>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature-card" onclick="openArticle(0)">
+              <span class="eyebrow">Faith & Life</span>
+              <h3>When faith feels quieter than expected</h3>
+              <p>
+                A reflection on the seasons when certainty feels less immediate,
+                and trust becomes something practiced rather than merely felt.
+              </p>
+              <div style="margin-top:24px" class="arrow-link">
+                Read reflection <span class="arrow-line"></span>
+              </div>
+            </article>
+
+            <div class="side-stack">
+              <article class="mini-feature" onclick="openArticle(1)">
+                <div>
+                  <span class="eyebrow">Prayer</span>
+                  <h4>Learning to pray when words are difficult</h4>
+                </div>
+                <span class="arrow-link">Open article <span class="arrow-line"></span></span>
+              </article>
+
+              <article class="mini-feature" onclick="openArticle(2)">
+                <div>
+                  <span class="eyebrow">Bible & Theology</span>
+                  <h4>Reading Scripture slowly in a hurried world</h4>
+                </div>
+                <span class="arrow-link">Open article <span class="arrow-line"></span></span>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" style="padding-top:20px">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">Explore</span>
+              <h2 class="section-title">Themes for the journey</h2>
+            </div>
+            <p class="section-note">
+              Instead of crowding the main navigation with categories, readers can discover them here as themes.
+              In the final CMS, these are created and managed from the backend.
+            </p>
+          </div>
+
+          <div class="topic-strip" id="homeTopics"></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">Latest Writing</span>
+              <h2 class="section-title">From the journal</h2>
+            </div>
+            <button class="secondary" onclick="goPage('articles')">View all articles</button>
+          </div>
+          <div class="article-grid" id="homeArticles"></div>
+        </div>
+      </section>
+
+      <section class="quote-band">
+        <div class="container">
+          <blockquote>
+            “Faith is not merely something we hold. It is something we learn to live, slowly and faithfully.”
+          </blockquote>
+          <cite>Editorial statement • placeholder</cite>
+        </div>
+      </section>
+    </section>
+
+    <!-- ARTICLES -->
+    <section id="page-articles" class="page">
+      <div class="page-hero">
+        <div class="container page-hero-grid">
+          <div>
+            <span class="eyebrow">The Journal</span>
+            <h1>Articles</h1>
+          </div>
+          <p>
+            Essays, reflections and biblical thought arranged for easy reading.
+            Search by title or narrow the collection by topic.
+          </p>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="article-toolbar">
+          <div class="searchbox">
+            <span class="search-icon"></span>
+            <input id="articleSearch" type="text" placeholder="Search articles..." />
+          </div>
+          <div class="filter-chips" id="articleFilters"></div>
+        </div>
+
+        <div class="editorial-list" id="articleList"></div>
+      </div>
+      <div style="height:80px"></div>
+    </section>
+
+    <!-- EXPLORE -->
+    <section id="page-explore" class="page">
+      <div class="page-hero">
+        <div class="container page-hero-grid">
+          <div>
+            <span class="eyebrow">Browse by Theme</span>
+            <h1>Explore</h1>
+          </div>
+          <p>
+            A quieter alternative to a conventional “Categories” page.
+            Each theme groups related writing while keeping the publication feeling editorial and curated.
+          </p>
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="container">
+          <div class="topic-directory" id="topicDirectory"></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="page-about" class="page">
+      <div class="page-hero">
+        <div class="container page-hero-grid">
+          <div>
+            <span class="eyebrow">The Author</span>
+            <h1>About</h1>
+          </div>
+          <p>
+            A personal introduction to the voice behind the writing, her story,
+            faith journey and the purpose of this publication.
+          </p>
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="container about-grid">
+          <div class="about-portrait"></div>
+          <div class="about-copy">
+            <span class="eyebrow">A life of faith, expressed in words</span>
+            <h2>Writing from Scripture, experience and reflection.</h2>
+            <p>
+              This is where the client's real biography will sit. The final version can introduce her background,
+              Christian journey, ministry experience, family or professional context, and why she began writing.
+            </p>
+            <p>
+              Rather than reading like a corporate “About Us” page, this section is intentionally written as a warm,
+              personal author profile — closer to an editorial essay than a résumé.
+            </p>
+            <div class="signature">Author Name</div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- RESOURCES -->
+    <section id="page-resources" class="page">
+      <div class="page-hero">
+        <div class="container page-hero-grid">
+          <div>
+            <span class="eyebrow">Beyond the Journal</span>
+            <h1>Resources</h1>
+          </div>
+          <p>
+            A flexible page for devotionals, reading lists, study notes, downloadable material,
+            recommended books or future ministry resources.
+          </p>
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="container resource-grid">
+          <div class="resource-card">
+            <div class="resource-icon">01</div>
+            <div>
+              <span class="eyebrow">Coming Soon</span>
+              <h3>Devotional Notes</h3>
+              <p>Short Scripture-based reflections that can later be updated through the CMS.</p>
+            </div>
+          </div>
+          <div class="resource-card">
+            <div class="resource-icon">02</div>
+            <div>
+              <span class="eyebrow">Reading</span>
+              <h3>Recommended Books</h3>
+              <p>A curated library for theology, Christian living, prayer and spiritual formation.</p>
+            </div>
+          </div>
+          <div class="resource-card">
+            <div class="resource-icon">03</div>
+            <div>
+              <span class="eyebrow">Study</span>
+              <h3>Bible Study Resources</h3>
+              <p>Future downloadable guides, notes or teaching materials can live here.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="page-contact" class="page">
+      <div class="page-hero">
+        <div class="container page-hero-grid">
+          <div>
+            <span class="eyebrow">Stay Connected</span>
+            <h1>Contact</h1>
+          </div>
+          <p>
+            A simple contact space for readers, invitations, questions or ministry-related enquiries.
+          </p>
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="container contact-wrap">
+          <div class="contact-copy">
+            <span class="eyebrow">Write a note</span>
+            <h2>I'd be glad to hear from you.</h2>
+            <p>
+              This form is for demo purposes. Later we can connect it to email, Google Sheets,
+              Cloudflare, or whatever workflow you prefer.
+            </p>
+          </div>
+
+          <form class="contact-form" onsubmit="event.preventDefault(); alert('Demo form only — backend can be connected later.');">
+            <div class="field">
+              <label>Name</label>
+              <input type="text" placeholder="Your name" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" placeholder="you@example.com" />
+            </div>
+            <div class="field">
+              <label>Message</label>
+              <textarea placeholder="Write your message..."></textarea>
+            </div>
+            <button class="primary" type="submit" style="justify-self:start">Send Message</button>
+          </form>
+        </div>
+      </section>
+    </section>
+
+    <!-- ARTICLE DETAIL -->
+    <section id="page-article" class="page">
+      <div class="article-detail">
+        <div class="article-kicker">
+          <span id="detailCategory">Faith & Life</span>
+          <span class="dot"></span>
+          <span id="detailDate">September 23, 2026</span>
+        </div>
+
+        <h1 class="article-title" id="detailTitle">When faith feels quieter than expected</h1>
+        <p class="article-deck" id="detailExcerpt">
+          A reflection on the seasons when certainty feels less immediate, and trust becomes something practiced rather than merely felt.
+        </p>
+        <div class="article-byline">By Author Name</div>
+
+        <div class="article-cover"></div>
+
+        <div class="article-layout">
+          <aside class="article-aside">
+            <div class="share">Share</div>
+            <div class="share-buttons">
+              <button aria-label="Share to Facebook">f</button>
+              <button aria-label="Share to X">x</button>
+              <button aria-label="Copy link">↗</button>
+            </div>
+          </aside>
+
+          <article class="article-body" id="detailBody">
+            <p>
+              There are seasons when faith feels vivid and immediate, and there are other seasons when it feels quieter.
+              The quiet seasons are not necessarily empty ones. Often they invite us to notice what remains when emotion,
+              momentum and certainty do not arrive as quickly as we would like.
+            </p>
+            <p>
+              Christian faith has never depended only on strong feelings. It is also formed through ordinary faithfulness:
+              returning to Scripture, choosing prayer, receiving grace, participating in community, and trusting that God remains
+              present even when our experience feels less dramatic.
+            </p>
+            <h2>Learning to remain</h2>
+            <p>
+              One of the quieter disciplines of faith is learning to remain. We remain in prayer when the words feel small.
+              We remain in Scripture when understanding comes slowly. We remain in community when we would rather withdraw.
+            </p>
+            <blockquote>
+              Sometimes faith matures not by becoming louder, but by becoming steadier.
+            </blockquote>
+            <p>
+              The goal is not to manufacture certainty. The invitation is to become attentive — to what God has already spoken,
+              to the people placed around us, and to the small acts of trust that form a life over time.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <h3>Grace & Truth</h3>
+          <p>
+            A personal Christian publication for thoughtful writing on faith, Scripture,
+            prayer and everyday discipleship.
+          </p>
+        </div>
+
+        <div class="footer-links">
+          <div class="footer-col">
+            <strong>Journal</strong>
+            <a href="#articles" data-page-link="articles">All Articles</a>
+            <a href="#explore" data-page-link="explore">Explore</a>
+            <a href="#resources" data-page-link="resources">Resources</a>
+          </div>
+          <div class="footer-col">
+            <strong>Author</strong>
+            <a href="#about" data-page-link="about">About</a>
+            <a href="#contact" data-page-link="contact">Contact</a>
+          </div>
+          <div class="footer-col">
+            <strong>Follow</strong>
+            <a href="#">Instagram</a>
+            <a href="#">Facebook</a>
+            <a href="#">YouTube</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 Grace & Truth. Demo concept for client presentation.</span>
+        <span>Designed as a premium editorial publication.</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-panel">
+      <div class="search-top">
+        <span class="search-icon"></span>
+        <input id="globalSearch" type="text" placeholder="Search the journal..." autofocus />
+        <button class="close-search" id="closeSearch">×</button>
+      </div>
+      <div class="search-hint">
+        Try “prayer”, “faith”, “Scripture” or “Christian living”.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const topics = [
+      {
+        name:"Faith & Life",
+        desc:"Reflections on trusting God through ordinary life, change, waiting and growth."
+      },
+      {
+        name:"Bible & Theology",
+        desc:"Thoughtful writing on Scripture, doctrine and understanding Christian belief."
+      },
+      {
+        name:"Prayer",
+        desc:"Personal reflections on prayer, spiritual formation and drawing near to God."
+      },
+      {
+        name:"Church & Community",
+        desc:"Writing about Christian community, service, belonging and life together."
+      },
+      {
+        name:"Christian Living",
+        desc:"Practical reflections on discipleship, habits, relationships and everyday faith."
+      },
+      {
+        name:"Testimony",
+        desc:"Personal stories of grace, change, questions, lessons and God's faithfulness."
+      }
+    ];
+
+    const articles = [
+      {
+        title:"When faith feels quieter than expected",
+        category:"Faith & Life",
+        date:"September 23, 2026",
+        excerpt:"A reflection on the seasons when certainty feels less immediate, and trust becomes something practiced rather than merely felt.",
+        featured:true
+      },
+      {
+        title:"Learning to pray when words are difficult",
+        category:"Prayer",
+        date:"September 18, 2026",
+        excerpt:"Prayer does not always begin with eloquence. Sometimes it begins with presence, honesty and a willingness to remain.",
+        featured:true
+      },
+      {
+        title:"Reading Scripture slowly in a hurried world",
+        category:"Bible & Theology",
+        date:"September 12, 2026",
+        excerpt:"What changes when we stop reading the Bible only to finish a passage and begin reading to listen?",
+        featured:true
+      },
+      {
+        title:"What Christian community gives us that solitude cannot",
+        category:"Church & Community",
+        date:"September 5, 2026",
+        excerpt:"Faith is personal, but it was never designed to be entirely private.",
+        featured:false
+      },
+      {
+        title:"The grace of beginning again",
+        category:"Christian Living",
+        date:"August 29, 2026",
+        excerpt:"Spiritual growth often involves returning — to truth, to prayer and to practices we had quietly abandoned.",
+        featured:false
+      },
+      {
+        title:"The prayers God answered differently",
+        category:"Testimony",
+        date:"August 20, 2026",
+        excerpt:"Looking back at the requests that were not answered in the form we expected, and what they taught us about trust.",
+        featured:false
+      }
+    ];
+
+    let currentFilter = "All";
+
+    function goPage(name){
+      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+      const target = document.getElementById("page-"+name);
+      if(target) target.classList.add("active");
+
+      document.querySelectorAll(".navlink").forEach(a=>a.classList.remove("active"));
+      document.querySelectorAll(`[data-page-link="${name}"]`).forEach(a=>{
+        if(a.classList.contains("navlink")) a.classList.add("active");
+      });
+
+      window.scrollTo({top:0,behavior:"smooth"});
+      document.getElementById("mobilePanel").classList.remove("open");
+      history.replaceState(null,"","#"+name);
+    }
+
+    document.querySelectorAll("[data-page-link]").forEach(link=>{
+      link.addEventListener("click",e=>{
+        e.preventDefault();
+        goPage(link.dataset.pageLink);
+      });
+    });
+
+    document.querySelectorAll("[data-filter-jump]").forEach(link=>{
+      link.addEventListener("click",e=>{
+        e.preventDefault();
+        goPage("articles");
+        currentFilter = "All";
+        document.getElementById("articleSearch").value = link.dataset.filterJump === "featured" ? "" : "";
+        renderArticles();
+        if(link.dataset.filterJump==="featured"){
+          renderArticles({featuredOnly:true});
+        }
+      });
+    });
+
+    function renderHomeTopics(){
+      const wrap = document.getElementById("homeTopics");
+      wrap.innerHTML = topics.slice(0,4).map((t,i)=>`
+        <article class="topic-card" onclick="openTopic('${t.name.replace(/'/g,"\\'")}')">
+          <span class="topic-no">0${i+1}</span>
+          <h3>${t.name}</h3>
+          <p>${t.desc}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderHomeArticles(){
+      document.getElementById("homeArticles").innerHTML = articles.slice(0,3).map((a,i)=>`
+        <article class="article-card" onclick="openArticle(${i})">
+          <div class="thumb"></div>
+          <div class="article-meta"><span>${a.category}</span><span class="dot"></span><span>${a.date}</span></div>
+          <h3>${a.title}</h3>
+          <p>${a.excerpt}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderFilters(){
+      const labels = ["All", ...topics.map(t=>t.name)];
+      document.getElementById("articleFilters").innerHTML = labels.map(label=>`
+        <button class="chip ${currentFilter===label?"active":""}" onclick="setFilter('${label.replace(/'/g,"\\'")}')">${label}</button>
+      `).join("");
+    }
+
+    function setFilter(label){
+      currentFilter = label;
+      renderFilters();
+      renderArticles();
+    }
+
+    function renderArticles(options={}){
+      const q = (document.getElementById("articleSearch")?.value || "").toLowerCase();
+      let list = articles.filter(a=>{
+        const matchFilter = currentFilter==="All" || a.category===currentFilter;
+        const matchSearch = (a.title+" "+a.excerpt+" "+a.category).toLowerCase().includes(q);
+        return matchFilter && matchSearch;
+      });
+      if(options.featuredOnly) list = list.filter(a=>a.featured);
+
+      document.getElementById("articleList").innerHTML = list.map(a=>{
+        const idx = articles.indexOf(a);
+        return `
+          <article class="editorial-row" onclick="openArticle(${idx})">
+            <div class="category">${a.category}</div>
+            <div>
+              <h3>${a.title}</h3>
+              <p>${a.excerpt}</p>
+            </div>
+            <div class="date">${a.date}</div>
+          </article>
+        `;
+      }).join("") || `<div style="padding:40px 0;color:var(--muted)">No articles found.</div>`;
+    }
+
+    function renderTopicDirectory(){
+      document.getElementById("topicDirectory").innerHTML = topics.map((t,i)=>`
+        <article class="topic-large" onclick="openTopic('${t.name.replace(/'/g,"\\'")}')">
+          <span class="eyebrow">Theme ${String(i+1).padStart(2,"0")}</span>
+          <div>
+            <h3>${t.name}</h3>
+            <p>${t.desc}</p>
+          </div>
+          <span class="arrow-link">Browse articles <span class="arrow-line"></span></span>
+        </article>
+      `).join("");
+    }
+
+    function openTopic(name){
+      currentFilter = name;
+      goPage("articles");
+      renderFilters();
+      renderArticles();
+    }
+
+    function openArticle(index){
+      const a = articles[index];
+      document.getElementById("detailCategory").textContent = a.category;
+      document.getElementById("detailDate").textContent = a.date;
+      document.getElementById("detailTitle").textContent = a.title;
+      document.getElementById("detailExcerpt").textContent = a.excerpt;
+      goPage("article");
+    }
+
+    document.getElementById("articleSearch").addEventListener("input",()=>renderArticles());
+
+    const menuBtn = document.getElementById("menuBtn");
+    menuBtn.addEventListener("click",()=>document.getElementById("mobilePanel").classList.toggle("open"));
+
+    document.getElementById("mobileArticleToggle").addEventListener("click",()=>{
+      document.getElementById("mobileArticleSub").classList.toggle("open");
+    });
+
+    const searchOverlay = document.getElementById("searchOverlay");
+    document.getElementById("openSearch").addEventListener("click",()=>searchOverlay.classList.add("open"));
+    document.getElementById("closeSearch").addEventListener("click",()=>searchOverlay.classList.remove("open"));
+    searchOverlay.addEventListener("click",e=>{ if(e.target===searchOverlay) searchOverlay.classList.remove("open"); });
+
+    document.getElementById("globalSearch").addEventListener("keydown",e=>{
+      if(e.key==="Enter"){
+        document.getElementById("articleSearch").value = e.target.value;
+        searchOverlay.classList.remove("open");
+        goPage("articles");
+        renderArticles();
+      }
+    });
+
+    window.addEventListener("scroll",()=>{
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      const pct = max > 0 ? (doc.scrollTop/max)*100 : 0;
+      document.getElementById("progress").style.width = pct+"%";
+    });
+
+    renderHomeTopics();
+    renderHomeArticles();
+    renderFilters();
+    renderArticles();
+    renderTopicDirectory();
+
+    const start = location.hash.replace("#","");
+    if(["home","articles","explore","about","resources","contact","article"].includes(start)){
+      goPage(start);
+    }
+  </script>
+</body>
+</html>
