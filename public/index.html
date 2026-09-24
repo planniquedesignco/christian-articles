@@ -450,13 +450,16 @@ footer{border-top:1px solid var(--line);background:var(--paper);padding:42px 0 2
         <p class="section-note">A selected article from the journal — a place to slow down, read carefully and reflect.</p>
       </div>
 
-      <div class="featured-grid">
-        <div class="feature-image"><img src="https://images.unsplash.com/photo-1778866288139-4303cf75bb9c?auto=format&fit=crop&q=86&w=1600" alt="Open Bible and coffee"></div>
-        <article class="feature-copy" onclick="openArticle('faith-quieter')">
-          <span class="verse-badge">Faith & Life</span>
-          <h2>When faith feels quieter than expected</h2>
-          <p class="highlight">“Sometimes faith matures not by becoming louder, but by becoming steadier.”</p>
-          <p class="excerpt">A reflection on waiting, trust and what remains when certainty does not arrive as quickly as we hoped.</p>
+      
+      <div class="featured-grid" id="featuredHome">
+        <div class="feature-image">
+          <img id="featuredHomeImage" src="" alt="">
+        </div>
+        <article class="feature-copy" id="featuredHomeCard">
+          <span class="verse-badge" id="featuredHomeCategory">Featured</span>
+          <h2 id="featuredHomeTitle"></h2>
+          <p class="highlight" id="featuredHomeHighlight"></p>
+          <p class="excerpt" id="featuredHomeExcerpt"></p>
           <span class="arrowlink">Read Full Article <span class="arrowline"></span></span>
         </article>
       </div>
@@ -1050,10 +1053,28 @@ async function loadCMSContent(){
 
 function parseCMSBody(text){
   if(!text)return[];
-  return String(text)
-    .split(/\n\s*\n/)
-    .map(block=>block.trim())
-    .filter(Boolean);
+  const lines=String(text).replace(/\r/g,"").split("\n");
+  const blocks=[];
+  let paragraph=[];
+
+  const flush=()=>{
+    const value=paragraph.join(" ").trim();
+    if(value)blocks.push(value);
+    paragraph=[];
+  };
+
+  for(const raw of lines){
+    const line=raw.trim();
+    if(!line){ flush(); continue; }
+    if(line.startsWith("##") || line.startsWith(">")){
+      flush();
+      blocks.push(line);
+    }else{
+      paragraph.push(line);
+    }
+  }
+  flush();
+  return blocks;
 }
 
 function formatPublicDate(value){
@@ -1154,7 +1175,7 @@ function renderCategoryMenus(){
 
 function articleCard(a){
   return `<article class="article-card" onclick="openArticle('${a.slug}')">
-    <div class="card-image"><img loading="lazy" src="${a.image}" alt="${a.title}"></div>
+    <div class="card-image"><img loading="lazy" decoding="async" src="${a.image}" alt="${a.title}"></div>
     <div class="card-body">
       <div class="meta"><span>${a.category}</span><span class="dot"></span><span>${a.date}</span></div>
       <h3>${a.title}</h3>
@@ -1165,11 +1186,42 @@ function articleCard(a){
   </article>`;
 }
 
+
+function renderFeatured(){
+  const holder=document.getElementById("featuredHome");
+  if(!holder)return;
+
+  if(!articles.length){
+    holder.style.display="none";
+    return;
+  }
+
+  holder.style.display="";
+  const a=articles.find(x=>x.featured) || articles[0];
+
+  const img=document.getElementById("featuredHomeImage");
+  const cat=document.getElementById("featuredHomeCategory");
+  const title=document.getElementById("featuredHomeTitle");
+  const highlight=document.getElementById("featuredHomeHighlight");
+  const excerpt=document.getElementById("featuredHomeExcerpt");
+  const card=document.getElementById("featuredHomeCard");
+
+  if(img){
+    img.src=a.image || "";
+    img.alt=a.title || "Featured article";
+  }
+  if(cat)cat.textContent=a.category || "Featured";
+  if(title)title.textContent=a.title || "";
+  if(highlight)highlight.textContent=a.highlight ? `“${a.highlight}”` : "";
+  if(excerpt)excerpt.textContent=a.excerpt || "";
+  if(card)card.onclick=()=>openArticle(a.slug);
+}
+
 function renderRecent(){
   const latest=articles.slice(0,5);
   document.getElementById("recentLayout").innerHTML=latest.map(a=>`
     <article class="latest-row" onclick="openArticle('${a.slug}')">
-      <div class="latest-row-image"><img loading="lazy" src="${a.image}" alt="${a.title}"></div>
+      <div class="latest-row-image"><img loading="lazy" decoding="async" src="${a.image}" alt="${a.title}"></div>
       <div class="latest-row-copy">
         <div class="meta"><span>${a.category}</span><span class="dot"></span><span>${a.date}</span></div>
         <h3>${a.title}</h3>
@@ -1324,6 +1376,7 @@ document.getElementById("toTop").addEventListener("click",()=>window.scrollTo({t
 async function initSite(){
   await loadCMSContent();
   renderCategoryMenus();
+  renderFeatured();
   renderRecent();
   renderFilters();
   renderLibrary();
