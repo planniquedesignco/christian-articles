@@ -97,6 +97,33 @@ th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)
 .stack{display:grid;gap:13px}
 .toast{position:fixed;right:22px;bottom:22px;z-index:80;background:#2f1d35;color:white;border-radius:11px;padding:11px 14px;font-size:12px;box-shadow:var(--shadow);opacity:0;transform:translateY(10px);pointer-events:none;transition:.22s}.toast.show{opacity:1;transform:none}
 
+
+.image-guide{
+  display:grid;
+  gap:4px;
+  padding:11px 12px;
+  border:1px solid #e3d9e7;
+  background:#faf7fb;
+  border-radius:10px;
+  color:var(--muted);
+  font-size:10.5px;
+  line-height:1.45;
+}
+.image-guide strong{
+  color:var(--plum);
+  font-size:11px;
+}
+.image-guide.compact{padding:9px 10px}
+.upload-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.upload-row input[type="file"]{flex:1;min-width:220px}
+.optimize-status{
+  min-height:18px;
+  font-size:10.5px;
+  color:var(--muted);
+}
+.optimize-status.ok{color:var(--green)}
+.optimize-status.error{color:var(--red)}
+
 @media(max-width:920px){
   .stats{grid-template-columns:repeat(2,1fr)}
   .site-grid{grid-template-columns:1fr}
@@ -210,7 +237,19 @@ th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)
               <div class="field"><label>Tagline</label><input id="siteTagline"></div>
               <div class="field"><label>Hero Title</label><input id="heroTitle"></div>
               <div class="field"><label>Hero Introduction</label><textarea class="medium-editor" id="heroIntro"></textarea></div>
-              <div class="field"><label>Hero Image URL</label><input id="heroImage"></div>
+              <div class="field">
+  <label>Hero Image</label>
+  <div class="image-guide compact">
+    <strong>Recommended: 1600 × 900 px</strong>
+    <span>Automatically optimized before upload.</span>
+  </div>
+  <input id="heroImage" placeholder="Image URL">
+  <div class="upload-row">
+    <input id="heroImageFile" type="file" accept="image/jpeg,image/png,image/webp">
+    <button class="secondary" type="button" id="uploadHeroBtn">Optimize & Upload</button>
+  </div>
+  <div class="optimize-status" id="heroOptimizeStatus"></div>
+</div>
             </div>
           </div>
 
@@ -220,7 +259,19 @@ th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)
               <div class="field"><label>Author Name</label><input id="authorName"></div>
               <div class="field"><label>Short Bio</label><textarea class="medium-editor" id="authorShortBio"></textarea></div>
               <div class="field"><label>Full Biography</label><textarea class="long-editor" id="authorFullBio"></textarea></div>
-              <div class="field"><label>Author Image URL</label><input id="authorImage"></div>
+              <div class="field">
+  <label>Author Image</label>
+  <div class="image-guide compact">
+    <strong>Recommended: 1000 × 1200 px</strong>
+    <span>Portrait • automatically optimized before upload.</span>
+  </div>
+  <input id="authorImage" placeholder="Image URL">
+  <div class="upload-row">
+    <input id="authorImageFile" type="file" accept="image/jpeg,image/png,image/webp">
+    <button class="secondary" type="button" id="uploadAuthorBtn">Optimize & Upload</button>
+  </div>
+  <div class="optimize-status" id="authorOptimizeStatus"></div>
+</div>
             </div>
           </div>
 
@@ -261,15 +312,21 @@ th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)
         <div class="field full"><label>Highlight</label><textarea class="medium-editor" id="aHighlight" placeholder="A short highlighted sentence shown before readers open the full article."></textarea></div>
         <div class="field full"><label>Excerpt</label><textarea class="medium-editor" id="aExcerpt" placeholder="Short introduction for article cards and search results."></textarea></div>
 
+        
         <div class="field full">
           <label>Cover Image</label>
-          <input id="aImage" placeholder="Paste an image URL, or upload below">
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <input id="aImageFile" type="file" accept="image/*" style="flex:1">
-            <button class="secondary" type="button" id="uploadImageBtn">Upload Image</button>
+          <div class="image-guide">
+            <strong>Recommended: 1600 × 1000 px</strong>
+            <span>Landscape • JPG/PNG/WebP • choose up to 8 MB</span>
+            <span>The admin will resize and compress it to WebP before uploading.</span>
           </div>
+          <input id="aImage" placeholder="Paste an image URL, or upload below">
+          <div class="upload-row">
+            <input id="aImageFile" type="file" accept="image/jpeg,image/png,image/webp" style="flex:1">
+            <button class="secondary" type="button" id="uploadImageBtn">Optimize & Upload</button>
+          </div>
+          <div class="optimize-status" id="aOptimizeStatus">No image selected.</div>
           <div class="preview" id="aPreview">Image preview</div>
-          <div class="form-help">For Cloudflare upload, add an R2 binding named <strong>IMAGES</strong>. Without R2, image URLs still work.</div>
         </div>
 
         <div class="field full">
@@ -516,15 +573,180 @@ function updatePreview(){
   $("aPreview").innerHTML=url?`<img src="${escAttr(url)}" alt="">`:"Image preview";
 }
 
+
+function formatBytes(bytes){
+  if(!bytes && bytes!==0)return"";
+  if(bytes<1024)return`${bytes} B`;
+  if(bytes<1024*1024)return`${(bytes/1024).toFixed(0)} KB`;
+  return`${(bytes/1024/1024).toFixed(2)} MB`;
+}
+
+async function readImageDimensions(file){
+  return new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{
+      resolve({width:img.naturalWidth,height:img.naturalHeight,img,url});
+    };
+    img.onerror=()=>{
+      URL.revokeObjectURL(url);
+      reject(new Error("Unable to read this image."));
+    };
+    img.src=url;
+  });
+}
+
+async function canvasToBlob(canvas,type,quality){
+  return new Promise((resolve,reject)=>{
+    canvas.toBlob(blob=>blob?resolve(blob):reject(new Error("Image compression failed.")),type,quality);
+  });
+}
+
+async function optimizeImage(file, profile={maxWidth:1600,maxHeight:1000,targetBytes:350*1024}){
+  if(!file)throw new Error("Choose an image first.");
+  if(!file.type.startsWith("image/"))throw new Error("Please choose an image file.");
+  if(file.size>8*1024*1024)throw new Error("Please choose an image smaller than 8 MB.");
+
+  const info=await readImageDimensions(file);
+  const originalWidth=info.width;
+  const originalHeight=info.height;
+
+  let scale=Math.min(1,profile.maxWidth/originalWidth,profile.maxHeight/originalHeight);
+  let width=Math.max(1,Math.round(originalWidth*scale));
+  let height=Math.max(1,Math.round(originalHeight*scale));
+
+  const canvas=document.createElement("canvas");
+  const ctx=canvas.getContext("2d",{alpha:false});
+  canvas.width=width;
+  canvas.height=height;
+  ctx.fillStyle="#ffffff";
+  ctx.fillRect(0,0,width,height);
+  ctx.drawImage(info.img,0,0,width,height);
+  URL.revokeObjectURL(info.url);
+
+  let quality=.84;
+  let blob=await canvasToBlob(canvas,"image/webp",quality);
+
+  while(blob.size>profile.targetBytes && quality>.56){
+    quality-=.07;
+    blob=await canvasToBlob(canvas,"image/webp",quality);
+  }
+
+  // If still large, gradually downscale.
+  let attempts=0;
+  while(blob.size>profile.targetBytes*1.2 && attempts<3 && width>900){
+    width=Math.round(width*.86);
+    height=Math.round(height*.86);
+
+    const smaller=document.createElement("canvas");
+    smaller.width=width;
+    smaller.height=height;
+    const sctx=smaller.getContext("2d",{alpha:false});
+    sctx.fillStyle="#ffffff";
+    sctx.fillRect(0,0,width,height);
+    sctx.drawImage(canvas,0,0,width,height,0,0,width,height);
+
+    canvas.width=width;
+    canvas.height=height;
+    ctx.drawImage(smaller,0,0);
+    blob=await canvasToBlob(smaller,"image/webp",Math.max(quality,.62));
+    attempts++;
+  }
+
+  return {
+    blob,
+    originalSize:file.size,
+    optimizedSize:blob.size,
+    originalWidth,
+    originalHeight,
+    width,
+    height
+  };
+}
+
+async function uploadOptimizedImage(file, profile, statusEl, urlInput){
+  if(!file){toast("Choose an image first.");return null}
+
+  statusEl.className="optimize-status";
+  statusEl.textContent="Optimizing image…";
+
+  try{
+    const result=await optimizeImage(file,profile);
+    statusEl.textContent=`Optimized ${result.originalWidth}×${result.originalHeight} (${formatBytes(result.originalSize)}) → ${result.width}×${result.height} (${formatBytes(result.optimizedSize)}). Uploading…`;
+
+    const fd=new FormData();
+    const optimizedFile=new File(
+      [result.blob],
+      `optimized-${Date.now()}.webp`,
+      {type:"image/webp"}
+    );
+    fd.append("file",optimizedFile);
+
+    const d=await api("/api/admin/upload",{method:"POST",body:fd});
+    urlInput.value=d.url;
+
+    statusEl.className="optimize-status ok";
+    statusEl.textContent=`✓ Uploaded & optimized: ${result.width}×${result.height} • ${formatBytes(result.optimizedSize)}`;
+    return d.url;
+  }catch(e){
+    statusEl.className="optimize-status error";
+    statusEl.textContent=e.message;
+    throw e;
+  }
+}
+
+$("aImageFile").addEventListener("change",async()=>{
+  const file=$("aImageFile").files[0];
+  if(!file)return;
+  try{
+    const info=await readImageDimensions(file);
+    URL.revokeObjectURL(info.url);
+    $("aOptimizeStatus").textContent=`Selected: ${info.width}×${info.height} • ${formatBytes(file.size)}. Click “Optimize & Upload”.`;
+  }catch(e){
+    $("aOptimizeStatus").textContent=e.message;
+  }
+});
+
 $("uploadImageBtn").addEventListener("click",async()=>{
   const file=$("aImageFile").files[0];
-  if(!file){toast("Choose an image first.");return}
-  const fd=new FormData();fd.append("file",file);
   try{
-    const d=await api("/api/admin/upload",{method:"POST",body:fd});
-    $("aImage").value=d.url;updatePreview();toast("Image uploaded.");
-  }catch(e){alert(e.message)}
+    await uploadOptimizedImage(
+      file,
+      {maxWidth:1600,maxHeight:1000,targetBytes:350*1024},
+      $("aOptimizeStatus"),
+      $("aImage")
+    );
+    updatePreview();
+    toast("Cover image optimized and uploaded.");
+  }catch(e){
+    if(e?.message) console.error(e);
+  }
 });
+
+$("uploadHeroBtn")?.addEventListener("click",async()=>{
+  try{
+    await uploadOptimizedImage(
+      $("heroImageFile").files[0],
+      {maxWidth:1600,maxHeight:900,targetBytes:400*1024},
+      $("heroOptimizeStatus"),
+      $("heroImage")
+    );
+    toast("Hero image optimized and uploaded.");
+  }catch(e){}
+});
+
+$("uploadAuthorBtn")?.addEventListener("click",async()=>{
+  try{
+    await uploadOptimizedImage(
+      $("authorImageFile").files[0],
+      {maxWidth:1000,maxHeight:1200,targetBytes:280*1024},
+      $("authorOptimizeStatus"),
+      $("authorImage")
+    );
+    toast("Author image optimized and uploaded.");
+  }catch(e){}
+});
+
 
 $("saveArticleBtn").addEventListener("click",async()=>{
   const id=$("articleId").value;
