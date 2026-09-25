@@ -123,6 +123,25 @@ th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)
 }
 .optimize-status.ok{color:var(--green)}
 .optimize-status.error{color:var(--red)}
+.rich-editor-shell{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.rich-toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:9px;border-bottom:1px solid var(--line);background:#fbf9fc}
+.rich-toolbar button,.rich-toolbar select,.rich-toolbar input[type="color"]{height:34px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:0 9px;font-size:12px;color:var(--ink)}
+.rich-toolbar button{min-width:34px;font-weight:700}
+.rich-toolbar button:hover{background:var(--lav)}
+.rich-toolbar .sep{width:1px;height:24px;background:var(--line);margin:0 2px}
+.rich-editor{min-height:360px;padding:16px 17px;outline:none;font-family:Georgia,serif;font-size:16px;line-height:1.8;color:#49414b}
+.rich-editor:empty:before{content:attr(data-placeholder);color:#9a919c}
+.rich-editor h2{font-family:var(--display);color:var(--plum);font-size:30px;line-height:1.15;margin:1.15em 0 .5em}
+.rich-editor blockquote{margin:1.3em 0;padding:14px 18px;border-left:3px solid var(--plum);background:var(--lav);color:var(--plum)}
+.rich-editor ul,.rich-editor ol{padding-left:24px}
+.category-item{grid-template-columns:auto 1fr auto}
+.category-order{width:32px;height:32px;border-radius:50%;background:var(--lav);color:var(--plum);display:grid;place-items:center;font-size:11px;font-weight:700}
+.image-preview-box{min-height:150px;border:1px dashed var(--line);border-radius:12px;background:var(--bg);display:grid;place-items:center;overflow:hidden;color:var(--muted);font-size:11px}
+.image-preview-box img{width:100%;height:100%;max-height:260px;object-fit:cover}
+.image-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.image-actions input[type="file"]{flex:1;min-width:220px}
+.field-note{font-size:10px;color:var(--muted);line-height:1.5}
+
 
 @media(max-width:920px){
   .stats{grid-template-columns:repeat(2,1fr)}
@@ -239,14 +258,12 @@ th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)
               <div class="field"><label>Hero Introduction</label><textarea class="medium-editor" id="heroIntro"></textarea></div>
               <div class="field">
   <label>Hero Image</label>
-  <div class="image-guide compact">
-    <strong>Recommended: 1600 × 900 px</strong>
-    <span>Automatically optimized before upload.</span>
-  </div>
-  <input id="heroImage" placeholder="Image URL">
-  <div class="upload-row">
+  <div class="image-guide compact"><strong>Recommended: 1600 × 900 px</strong><span>Choose the image shown in the homepage banner.</span></div>
+  <input id="heroImage" type="hidden">
+  <div class="image-preview-box" id="heroPreview">No image uploaded</div>
+  <div class="image-actions">
     <input id="heroImageFile" type="file" accept="image/jpeg,image/png,image/webp">
-    <button class="secondary" type="button" id="uploadHeroBtn">Optimize & Upload</button>
+    <button class="secondary" type="button" id="uploadHeroBtn">Upload Image</button>
   </div>
   <div class="optimize-status" id="heroOptimizeStatus"></div>
 </div>
@@ -261,14 +278,12 @@ th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)
               <div class="field"><label>Full Biography</label><textarea class="long-editor" id="authorFullBio"></textarea></div>
               <div class="field">
   <label>Author Image</label>
-  <div class="image-guide compact">
-    <strong>Recommended: 1000 × 1200 px</strong>
-    <span>Portrait • automatically optimized before upload.</span>
-  </div>
-  <input id="authorImage" placeholder="Image URL">
-  <div class="upload-row">
+  <div class="image-guide compact"><strong>Recommended: 1000 × 1200 px</strong><span>Portrait image shown on the homepage and About Me page.</span></div>
+  <input id="authorImage" type="hidden">
+  <div class="image-preview-box" id="authorPreview">No image uploaded</div>
+  <div class="image-actions">
     <input id="authorImageFile" type="file" accept="image/jpeg,image/png,image/webp">
-    <button class="secondary" type="button" id="uploadAuthorBtn">Optimize & Upload</button>
+    <button class="secondary" type="button" id="uploadAuthorBtn">Upload Image</button>
   </div>
   <div class="optimize-status" id="authorOptimizeStatus"></div>
 </div>
@@ -315,24 +330,42 @@ th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)
         
         <div class="field full">
           <label>Cover Image</label>
-          <div class="image-guide">
-            <strong>Recommended: 1600 × 1000 px</strong>
-            <span>Landscape • JPG/PNG/WebP • choose up to 8 MB</span>
-            <span>The admin will resize and compress it to WebP before uploading.</span>
+          <div class="image-guide"><strong>Recommended: 1600 × 1000 px</strong><span>Landscape • JPG/PNG/WebP • up to 8 MB</span></div>
+          <input id="aImage" type="hidden">
+          <div class="image-actions">
+            <input id="aImageFile" type="file" accept="image/jpeg,image/png,image/webp">
+            <button class="secondary" type="button" id="uploadImageBtn">Upload Image</button>
           </div>
-          <input id="aImage" placeholder="Paste an image URL, or upload below">
-          <div class="upload-row">
-            <input id="aImageFile" type="file" accept="image/jpeg,image/png,image/webp" style="flex:1">
-            <button class="secondary" type="button" id="uploadImageBtn">Optimize & Upload</button>
-          </div>
-          <div class="optimize-status" id="aOptimizeStatus">No image selected.</div>
+          <div class="optimize-status" id="aOptimizeStatus"></div>
           <div class="preview" id="aPreview">Image preview</div>
         </div>
 
         <div class="field full">
           <label>Full Article Content</label>
-          <textarea class="long-editor" id="aBody" placeholder="Write the full article here. There is no application-level word limit."></textarea>
-          <div class="form-help">Simple formatting: start a heading line with <strong>##</strong> and a quote line with <strong>&gt;</strong>. Blank lines become separate paragraphs.</div>
+          <div class="rich-editor-shell">
+            <div class="rich-toolbar" aria-label="Article formatting toolbar">
+              <select id="formatBlock" title="Text style">
+                <option value="p">Paragraph</option><option value="h2">Heading</option><option value="blockquote">Quote</option>
+              </select>
+              <span class="sep"></span>
+              <button type="button" data-cmd="bold" title="Bold"><b>B</b></button>
+              <button type="button" data-cmd="italic" title="Italic"><i>I</i></button>
+              <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+              <span class="sep"></span>
+              <select id="fontSizeSelect" title="Text size">
+                <option value="3">Normal</option><option value="2">Small</option><option value="4">Large</option><option value="5">Extra Large</option>
+              </select>
+              <input type="color" id="fontColor" title="Text colour" value="#49414b">
+              <span class="sep"></span>
+              <button type="button" data-cmd="insertUnorderedList" title="Bulleted list">• List</button>
+              <button type="button" data-cmd="insertOrderedList" title="Numbered list">1. List</button>
+              <button type="button" id="addLinkBtn" title="Add link">Link</button>
+              <button type="button" data-cmd="removeFormat" title="Clear formatting">Clear</button>
+            </div>
+            <div id="aBodyEditor" class="rich-editor" contenteditable="true" data-placeholder="Write the full article here..."></div>
+          </div>
+          <textarea id="aBody" class="hidden"></textarea>
+          <div class="form-help">Select text, then use the toolbar to apply headings, bold, italic, underline, text size, colour, lists, quotes or links.</div>
         </div>
 
         <div class="field full">
@@ -340,8 +373,7 @@ th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)
           <textarea class="medium-editor" id="aClosing" placeholder="Optional closing thought or question."></textarea>
         </div>
 
-        <div class="field"><label>Custom Slug</label><input id="aSlug" placeholder="auto-created-from-title"></div>
-        <div class="field"><label>Sort Priority</label><input id="aSort" type="number" value="0"><div class="form-help">Higher numbers appear earlier when pinned.</div></div>
+        <input type="hidden" id="aSlug"><input type="hidden" id="aSort" value="0">
 
         <div class="full toggle-row">
           <label class="check"><input type="checkbox" id="aFeatured"> Featured article</label>
@@ -354,7 +386,7 @@ th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)
       <button class="danger hidden" id="deleteArticleBtn">Delete Article</button>
       <div class="modal-foot-right">
         <button class="secondary" onclick="closeArticleModal()">Cancel</button>
-        <button class="primary" id="saveArticleBtn">Save Article</button>
+        <button class="secondary" type="button" id="saveDraftBtn">Save Draft</button><button class="primary" id="saveArticleBtn">Save / Publish</button>
       </div>
     </div>
   </div>
@@ -371,8 +403,7 @@ th{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)
       <div class="form-grid">
         <div class="field full"><label>Category Name</label><input id="cName"></div>
         <div class="field full"><label>Description</label><textarea class="medium-editor" id="cDescription"></textarea></div>
-        <div class="field"><label>Slug</label><input id="cSlug"></div>
-        <div class="field"><label>Order</label><input id="cSort" type="number" value="0"></div>
+        <input type="hidden" id="cSlug"><div class="field full"><label>Display Order</label><select id="cSort"></select><div class="form-help">1 appears first, followed by 2, 3, 4 and so on.</div></div>
         <div class="full"><label class="check"><input type="checkbox" id="cActive" checked> Active</label></div>
       </div>
     </div>
@@ -473,8 +504,9 @@ async function loadDashboard(){
 
 async function loadCategories(){
   categories=await api("/api/admin/categories");
-  $("categoryList").innerHTML=categories.map(c=>`
+  $("categoryList").innerHTML=categories.map((c,i)=>`
     <div class="category-item">
+      <div class="category-order">${i+1}</div>
       <div><strong>${esc(c.name)}</strong><small>${esc(c.description||"No description")} • ${c.article_count||0} articles</small></div>
       <div class="actions">
         <button class="mini" onclick="editCategory(${c.id})">Edit</button>
@@ -532,6 +564,7 @@ function openNewArticle(){
   $("articleModalTitle").textContent="New Article";
   $("articleId").value="";
   ["aTitle","aHighlight","aExcerpt","aImage","aBody","aClosing","aSlug"].forEach(id=>$(id).value="");
+  $("aBodyEditor").innerHTML="";
   $("aStatus").value="draft";
   $("aCategory").value="";
   $("aSort").value="0";
@@ -555,6 +588,7 @@ async function editArticle(id){
   $("aExcerpt").value=a.excerpt||"";
   $("aImage").value=a.cover_image||"";
   $("aBody").value=a.body||"";
+  $("aBodyEditor").innerHTML=articleBodyToEditorHTML(a.body||"");
   $("aClosing").value=a.closing||"";
   $("aSlug").value=a.slug||"";
   $("aSort").value=a.sort_order||0;
@@ -570,7 +604,7 @@ window.closeArticleModal=()=>$("articleModal").classList.remove("open");
 $("aImage").addEventListener("input",updatePreview);
 function updatePreview(){
   const url=$("aImage").value.trim();
-  $("aPreview").innerHTML=url?`<img src="${escAttr(url)}" alt="">`:"Image preview";
+  $("aPreview").innerHTML=url?`<img src="${escAttr(url)}" alt="">`:"No cover image uploaded";
 }
 
 
@@ -672,12 +706,12 @@ async function uploadOptimizedImage(file, profile, statusEl, urlInput){
 
   try{
     const result=await optimizeImage(file,profile);
-    statusEl.textContent=`Optimized ${result.originalWidth}×${result.originalHeight} (${formatBytes(result.originalSize)}) → ${result.width}×${result.height} (${formatBytes(result.optimizedSize)}). Uploading…`;
+    statusEl.textContent="Uploading image…";
 
     const fd=new FormData();
     const optimizedFile=new File(
       [result.blob],
-      `optimized-${Date.now()}.webp`,
+      `image-${Date.now()}.webp`,
       {type:"image/webp"}
     );
     fd.append("file",optimizedFile);
@@ -686,7 +720,7 @@ async function uploadOptimizedImage(file, profile, statusEl, urlInput){
     urlInput.value=d.url;
 
     statusEl.className="optimize-status ok";
-    statusEl.textContent=`✓ Uploaded & optimized: ${result.width}×${result.height} • ${formatBytes(result.optimizedSize)}`;
+    statusEl.textContent="✓ Image uploaded";
     return d.url;
   }catch(e){
     statusEl.className="optimize-status error";
@@ -701,7 +735,7 @@ $("aImageFile").addEventListener("change",async()=>{
   try{
     const info=await readImageDimensions(file);
     URL.revokeObjectURL(info.url);
-    $("aOptimizeStatus").textContent=`Selected: ${info.width}×${info.height} • ${formatBytes(file.size)}. Click “Optimize & Upload”.`;
+    $("aOptimizeStatus").textContent=`Selected: ${info.width}×${info.height} • ${formatBytes(file.size)}`;
   }catch(e){
     $("aOptimizeStatus").textContent=e.message;
   }
@@ -717,7 +751,7 @@ $("uploadImageBtn").addEventListener("click",async()=>{
       $("aImage")
     );
     updatePreview();
-    toast("Cover image optimized and uploaded.");
+    toast("Cover image uploaded.");
   }catch(e){
     if(e?.message) console.error(e);
   }
@@ -731,7 +765,8 @@ $("uploadHeroBtn")?.addEventListener("click",async()=>{
       $("heroOptimizeStatus"),
       $("heroImage")
     );
-    toast("Hero image optimized and uploaded.");
+    updateSiteImagePreview("heroPreview",$("heroImage").value,"No hero image uploaded");
+    toast("Hero image uploaded.");
   }catch(e){}
 });
 
@@ -743,13 +778,18 @@ $("uploadAuthorBtn")?.addEventListener("click",async()=>{
       $("authorOptimizeStatus"),
       $("authorImage")
     );
-    toast("Author image optimized and uploaded.");
+    updateSiteImagePreview("authorPreview",$("authorImage").value,"No author image uploaded");
+    toast("Author image uploaded.");
   }catch(e){}
 });
 
 
+$("saveDraftBtn").addEventListener("click",()=>{$("aStatus").value="draft";$("saveArticleBtn").click();});
+
 $("saveArticleBtn").addEventListener("click",async()=>{
   const id=$("articleId").value;
+  syncRichEditor();
+  if(!$("aSlug").value.trim()) $("aSlug").value=slugify($("aTitle").value);
   const body={
     title:$("aTitle").value,
     category_id:$("aCategory").value||null,
@@ -784,7 +824,8 @@ $("deleteArticleBtn").addEventListener("click",async()=>{
 function openNewCategory(){
   $("categoryModalTitle").textContent="New Category";
   $("categoryId").value="";
-  $("cName").value="";$("cDescription").value="";$("cSlug").value="";$("cSort").value="0";$("cActive").checked=true;
+  $("cName").value="";$("cDescription").value="";$("cSlug").value="";$("cActive").checked=true;
+  fillCategoryOrderOptions(categories.length+1,categories.length+1);
   $("deleteCategoryBtn").classList.add("hidden");
   $("categoryModal").classList.add("open");
 }
@@ -793,7 +834,9 @@ $("newCategoryBtn").addEventListener("click",openNewCategory);
 function editCategory(id){
   const c=categories.find(x=>x.id===id);if(!c)return;
   $("categoryModalTitle").textContent="Edit Category";
-  $("categoryId").value=c.id;$("cName").value=c.name||"";$("cDescription").value=c.description||"";$("cSlug").value=c.slug||"";$("cSort").value=c.sort_order||0;$("cActive").checked=!!c.is_active;
+  $("categoryId").value=c.id;$("cName").value=c.name||"";$("cDescription").value=c.description||"";$("cSlug").value=c.slug||"";$("cActive").checked=!!c.is_active;
+  const currentIndex=Math.max(1,categories.findIndex(x=>x.id===c.id)+1);
+  fillCategoryOrderOptions(categories.length,currentIndex);
   $("deleteCategoryBtn").classList.remove("hidden");
   $("categoryModal").classList.add("open");
 }
@@ -802,10 +845,12 @@ window.closeCategoryModal=()=>$("categoryModal").classList.remove("open");
 
 $("saveCategoryBtn").addEventListener("click",async()=>{
   const id=$("categoryId").value;
-  const body={name:$("cName").value,description:$("cDescription").value,slug:$("cSlug").value,sort_order:Number($("cSort").value||0),is_active:$("cActive").checked};
+  if(!$("cSlug").value.trim()) $("cSlug").value=slugify($("cName").value);
+  const desiredPosition=Number($("cSort").value||1);
+  const body={name:$("cName").value,description:$("cDescription").value,slug:$("cSlug").value,sort_order:desiredPosition,is_active:$("cActive").checked};
   try{
-    if(id)await api(`/api/admin/categories/${id}`,{method:"PUT",body});
-    else await api("/api/admin/categories",{method:"POST",body});
+    const saved=id?await api(`/api/admin/categories/${id}`,{method:"PUT",body}):await api("/api/admin/categories",{method:"POST",body});
+    await normalizeCategoryOrder(Number(id||saved?.id||0),desiredPosition,$("cName").value);
     closeCategoryModal();toast("Category saved.");
     await Promise.all([loadCategories(),loadDashboard()]);
   }catch(e){alert(e.message)}
@@ -836,6 +881,8 @@ async function loadSite(){
   $("facebookUrl").value=s.facebook_url||"";
   $("youtubeUrl").value=s.youtube_url||"";
   $("contactEmail").value=s.contact_email||"";
+  updateSiteImagePreview("heroPreview",s.hero_image||"","No hero image uploaded");
+  updateSiteImagePreview("authorPreview",s.author_image||"","No author image uploaded");
 }
 
 $("saveSiteBtn").addEventListener("click",async()=>{
@@ -847,6 +894,72 @@ $("saveSiteBtn").addEventListener("click",async()=>{
   }});
   toast("Site settings saved.");
 });
+
+
+function updateSiteImagePreview(id,url,emptyText){
+  const el=$(id); if(!el)return;
+  el.innerHTML=url?`<img src="${escAttr(url)}" alt="">`:emptyText;
+}
+
+function slugify(value){
+  return String(value||"").trim().toLowerCase()
+    .normalize("NFKD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,90);
+}
+
+function articleBodyToEditorHTML(value){
+  const text=String(value||"").trim();
+  if(!text)return"";
+  if(/<(p|h[1-6]|blockquote|ul|ol|li|strong|em|u|span|a)\b/i.test(text))return text;
+  return text.split(/\n\s*\n/).map(block=>{
+    const b=block.trim();
+    if(!b)return"";
+    if(b.startsWith("##"))return `<h2>${esc(b.slice(2).trim())}</h2>`;
+    if(b.startsWith(">"))return `<blockquote>${esc(b.slice(1).trim())}</blockquote>`;
+    return `<p>${esc(b).replace(/\n/g,"<br>")}</p>`;
+  }).join("");
+}
+
+function syncRichEditor(){
+  $("aBody").value=$("aBodyEditor").innerHTML.trim();
+}
+
+function runEditorCommand(cmd,value=null){
+  $("aBodyEditor").focus();
+  document.execCommand(cmd,false,value);
+  syncRichEditor();
+}
+
+document.querySelectorAll(".rich-toolbar [data-cmd]").forEach(btn=>btn.addEventListener("click",()=>runEditorCommand(btn.dataset.cmd)));
+$("formatBlock")?.addEventListener("change",e=>runEditorCommand("formatBlock",e.target.value));
+$("fontSizeSelect")?.addEventListener("change",e=>runEditorCommand("fontSize",e.target.value));
+$("fontColor")?.addEventListener("input",e=>runEditorCommand("foreColor",e.target.value));
+$("addLinkBtn")?.addEventListener("click",()=>{
+  const url=prompt("Enter the link URL:");
+  if(url)runEditorCommand("createLink",url);
+});
+$("aBodyEditor")?.addEventListener("input",syncRichEditor);
+
+function fillCategoryOrderOptions(total,selected){
+  const max=Math.max(1,total);
+  $("cSort").innerHTML=Array.from({length:max},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join("");
+  $("cSort").value=String(Math.min(Math.max(1,selected||1),max));
+}
+
+async function normalizeCategoryOrder(targetId,desiredPosition,targetName){
+  let list=await api("/api/admin/categories");
+  list=[...list].sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0)||a.id-b.id);
+  let idx=list.findIndex(c=>targetId?c.id===targetId:c.name===targetName);
+  if(idx<0)return;
+  const [target]=list.splice(idx,1);
+  list.splice(Math.min(Math.max(0,desiredPosition-1),list.length),0,target);
+  await Promise.all(list.map((c,i)=>{
+    if(Number(c.sort_order)===i+1)return Promise.resolve();
+    return api(`/api/admin/categories/${c.id}`,{method:"PUT",body:{
+      name:c.name,description:c.description||"",slug:c.slug||slugify(c.name),sort_order:i+1,is_active:!!c.is_active
+    }});
+  }));
+}
 
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function escAttr(v){return esc(v)}
