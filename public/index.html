@@ -1051,7 +1051,11 @@ async function loadCMSContent(){
 
 function parseCMSBody(text){
   if(!text)return[];
-  return String(text)
+  const value=String(text).trim();
+  if(/<(p|h[1-6]|blockquote|ul|ol|li|strong|em|u|span|a|div)\b/i.test(value)){
+    return [{html:value}];
+  }
+  return value
     .split(/\n\s*\n/)
     .map(block=>block.trim())
     .filter(Boolean);
@@ -1233,6 +1237,7 @@ function openTheme(name){
 
 function renderBody(blocks){
   return blocks.map(b=>{
+    if(b && typeof b==="object" && b.html)return b.html;
     if(b.startsWith("##"))return `<h2>${b.slice(2)}</h2>`;
     if(b.startsWith(">"))return `<blockquote>${b.slice(1)}</blockquote>`;
     return `<p>${b}</p>`;
